@@ -178,3 +178,9 @@ def spectral_norm(weight, name, reuse=None):
       weight_norm = tf.reshape(weight_norm, shape)
 
   return weight_norm
+
+def l1_loss(val_1, val_2):
+  return tf.reduce_mean(tf.abs(val_1 - val_2))
+
+def l2_loss(val_1, val_2):
+  return tf.reduce_mean(tf.squared_difference(val_1, val_2)) * 0.5

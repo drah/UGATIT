@@ -34,3 +34,19 @@ def _critic(net, base_ch, n_base_layer, name, reuse=None):
     
     net = modules.pad_spectral_conv(net, 1, (4, 4), (1, 1), 1, 2, 1, 2, 'critic_logit', reuse)
     return net, cam_logit, heatmap
+
+def critic_loss(logits_real, logits_gen):
+  ''' lsgan loss '''
+  losses = []
+  for i in range(len(logits_real)):
+    loss_for_real = tf.reduce_mean(tf.squared_difference(logits_real[i], 1.0))
+    loss_for_gen = tf.reduce_mean(tf.square(logits_gen[i]))
+    losses.append(loss_for_real)
+    losses.append(loss_for_gen)
+  return tf.add_n(losses)
+
+def generator_loss(logits_gen):
+  ''' lsgan loss '''
+  losses = [tf.reduce_mean(tf.squared_difference(logits_gen[i], 1.0)) \
+      for i in range(len(logits_gen))]
+  return tf.add_n(losses)

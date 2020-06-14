@@ -69,3 +69,10 @@ def generator(net, base_ch, name, reuse=None, **kwargs):
     net = tf.nn.tanh(net, 'generated_tanh_output')
 
     return net, cam_logit, heatmap
+
+def cam_loss(cam_correct_source, cam_incorrect_source):
+  identity_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
+      labels=tf.ones_like(cam_correct_source), logits=cam_correct_source))
+  non_identity_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
+      labels=tf.zeros_like(cam_incorrect_source), logits=cam_incorrect_source))
+  return identity_loss + non_identity_loss

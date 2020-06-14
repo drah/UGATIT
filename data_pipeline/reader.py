@@ -34,6 +34,7 @@ def tf_read_with_aug(
 
   dataset = dataset.batch(batch_size, drop_remainder)
   dataset = dataset.make_one_shot_iterator().get_next()
+  dataset.set_shape([None, dest_hw[0], dest_hw[1], 3])
   return dataset
 
 
@@ -59,6 +60,7 @@ def tf_read(
 
   dataset = dataset.batch(batch_size, drop_remainder)
   dataset = dataset.make_one_shot_iterator().get_next()
+  dataset.set_shape([None, dest_hw[0], dest_hw[1], 3])
   return dataset
 
 

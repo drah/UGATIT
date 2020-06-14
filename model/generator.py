@@ -68,6 +68,4 @@ def generator(net, base_ch, name, reuse=None, **kwargs):
     net = helpers.conv2d(net, 3, (7, 7), (1, 1), 'SAME', 'final_conv', reuse)
     net = tf.nn.tanh(net, 'generated_tanh_output')
 
-    return net
-
-    # return net, cam_logit, heatmap
+    return net, cam_logit, heatmap

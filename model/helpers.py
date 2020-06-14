@@ -1,12 +1,18 @@
-import tensorflow as tf 
 import os
+from math import sqrt
+
+import tensorflow as tf 
+import cv2
+
+WEIGHT_NAME = 'weight'
+BIAS_NAME = 'bias'
 
 def _dense(node, n, name=None, reuse=None, apply_spectral_norm=False):
   with tf.variable_scope(name, reuse=reuse):
-    w = get_weight([node.shape[-1], n], 'dense_weight')
+    w = get_weight([node.shape[-1], n], 'dense_' + WEIGHT_NAME)
     if apply_spectral_norm:
       w = spectral_norm(w, 'spectral_norm', reuse)
-    b = get_bias([n], name='dense_bias')
+    b = get_bias([n], name='dense_' + BIAS_NAME)
 
   with tf.name_scope(name):
     node = tf.matmul(node, w) + b
@@ -22,8 +28,8 @@ def dense(node, n, name=None, reuse=None, also_return_weight_bias=False):
 
 def conv2d(node, n_filter, k_size, strides, padding, name=None, reuse=None):
   with tf.variable_scope(name, reuse=reuse):
-    w = get_weight([k_size[0], k_size[1], node.shape[-1], n_filter], name='conv2d_weight')
-    b = get_bias([n_filter], name='conv2d_bias')
+    w = get_weight([k_size[0], k_size[1], node.shape[-1], n_filter], name='conv2d_' + WEIGHT_NAME)
+    b = get_bias([n_filter], name='conv2d_' + BIAS_NAME)
 
     node = tf.nn.conv2d(node, w, [1, strides[0], strides[1], 1], padding)
     node = tf.nn.bias_add(node, b)
@@ -34,7 +40,7 @@ def optimize(loss, learning_rate=2e-4, decay_steps=10000, decay_rate=0.9, var_li
   with tf.variable_scope(name or 'optimizer'):
     global_step = get_global_step()
     dlr = tf.train.exponential_decay(learning_rate, global_step, decay_steps, decay_rate, True)
-    opt = tf.train.RMSPropOptimizer(dlr)
+    opt = tf.train.AdamOptimizer(dlr, beta1=0.5, beta2=0.999)
     train_step = opt.minimize(loss, global_step, var_list)
   return global_step, train_step
 
@@ -42,11 +48,11 @@ def get_global_step():
   return tf.get_variable('global_step', shape=[], initializer=tf.initializers.constant(0, tf.int64), trainable=False)
 
 def get_weight(shape, name=None):
-  w = tf.get_variable(name or 'weight', shape, initializer=tf.initializers.he_uniform())
+  w = tf.get_variable(name or WEIGHT_NAME, shape, initializer=tf.initializers.he_uniform())
   return w
 
 def get_bias(shape, init_value=0.2, name=None):
-  b = tf.get_variable(name or 'bias', shape, initializer=tf.initializers.constant(init_value))
+  b = tf.get_variable(name or BIAS_NAME, shape, initializer=tf.initializers.constant(init_value))
   return b
 
 def get_saver(var_list=None, max_to_keep=10):
@@ -136,9 +142,9 @@ def compute_heatmap(node, name='compute_heatmap'):
 
 def spectral_conv2d(node, n_filter, k_size, strides, padding, name=None, reuse=None):
   with tf.variable_scope(name, reuse=reuse):
-    w = get_weight([k_size[0], k_size[1], node.shape[-1], n_filter], name='conv2d_weight')
-    w = spectral_norm(w, 'conv2d_weight_spectral_norm', reuse=reuse)
-    b = get_bias([n_filter], name='conv2d_bias')
+    w = get_weight([k_size[0], k_size[1], node.shape[-1], n_filter], name='conv2d_' + WEIGHT_NAME)
+    w = spectral_norm(w, 'conv2d_%s_spectral_norm' % WEIGHT_NAME, reuse=reuse)
+    b = get_bias([n_filter], name='conv2d_' + BIAS_NAME)
 
     node = tf.nn.conv2d(node, w, [1, strides[0], strides[1], 1], padding)
     node = tf.nn.bias_add(node, b)
@@ -182,5 +188,15 @@ def spectral_norm(weight, name, reuse=None):
 def l1_loss(val_1, val_2):
   return tf.reduce_mean(tf.abs(val_1 - val_2))
 
-def l2_loss(val_1, val_2):
-  return tf.reduce_mean(tf.squared_difference(val_1, val_2)) * 0.5
+def l2_regularization(vars, reg_weight):
+  return tf.add_n([tf.nn.l2_loss(var) for var in vars]) * reg_weight
+
+def save_images_as_grid(save_path, images):
+  ''' images: np.array with dtype uint8 and shape (N, H, W, C)'''
+  shape = images.shape
+  length = int(sqrt(shape[0]))
+  grid_images = images[:length*length]
+  grid_images = grid_images.reshape([length, length, shape[1], shape[2], shape[3]])
+  grid_images = grid_images.transpose([0, 2, 1, 3, 4])
+  grid_images = grid_images.reshape([length * shape[1], length * shape[2], shape[3]])
+  cv2.imwrite(save_path, grid_images)

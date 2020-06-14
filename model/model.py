@@ -9,7 +9,6 @@ from . import helpers
 
 class UGATIT:
   def __init__(self, **kwargs):
-    self._has_built = False
     self._base_ch = kwargs.get('base_ch', 64)
     self._gan_weight = kwargs.get('gan_weight', 1.)
     self._rec_weight = kwargs.get('rec_weight', 10.)
@@ -45,7 +44,7 @@ class UGATIT:
         feed[self._image_a] = image_a
         feed[self._image_b] = image_b
         gen_b, gen_a, sum_str = self.sess.run([self._gen_a2b, self._gen_b2a, self._summary], feed)
-        self.save()
+        self.save('ckpt_%d' % step)
         self.log(sum_str)
         self.save_images(os.path.join(self._gen_a_dir, 'train_%s.jpg' % step), gen_a)
         self.save_images(os.path.join(self._gen_b_dir, 'train_%s.jpg' % step), gen_b)
@@ -54,6 +53,7 @@ class UGATIT:
         for i in range(self._log_step):
           self.sess.run([self._train_c, self._train_g])
         step += self._log_step
+        print("step: %d" step, end='\r')
         
     except tf.errors.OutOfRangeError:
       print("Training Finished")
@@ -69,6 +69,7 @@ class UGATIT:
         self.save_images(os.path.join(self._gen_b_dir, 'ori_b_%s.jpg' % index), image_b)
         self.save_images(os.path.join(self._gen_a_dir, 'gen_a_%s.jpg' % index), gen_a)
         index += 1
+        print("index: %d" % index)
 
     except tf.errors.OutOfRangeError:
       print("Prediction Finished")
@@ -196,7 +197,9 @@ class UGATIT:
   def save(self, save_name='ckpt'):
     if self._saver is None:
       self._saver = tf.train.Saver(max_to_keep=50)
-    self._saver_save(self.sess, os.path.join(self._ckpt_dir, save_name))
+    save_path = os.path.join(self._ckpt_dir, save_name)
+    self._saver_save(self.sess, save_path)
+    print("save %s" % save_path)
 
   def log(self, log_str, log_name='log'):
     if self._logger is None:
@@ -206,3 +209,4 @@ class UGATIT:
   def save_images(self, save_path, images):
     images = np.clip((images + 1.) * 127.5, 0, 255).astype(np.uint8)
     helpers.save_images_as_grid(save_path, images)
+    print("save_images %s" % save_path)

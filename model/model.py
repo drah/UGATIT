@@ -53,7 +53,7 @@ class UGATIT:
         for i in range(self._log_step):
           self.sess.run([self._train_c, self._train_g])
         step += self._log_step
-        print("step: %d" step, end='\r')
+        print("step: %d" % step, end='\r')
         
     except tf.errors.OutOfRangeError:
       print("Training Finished")

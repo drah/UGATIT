@@ -26,7 +26,7 @@ def main(args):
       'cam_weight': args.cam_weight,
       'l2_regularization_weight': args.l2_regularization_weight,
       'ckpt': args.ckpt,
-      'save_dir': model_dir,
+      'save_dir': model_dir.ckpt_dir,
       'log_dir': model_dir.log_dir,
       'gen_a_dir': model_dir.gen_a_dir,
       'gen_b_dir': model_dir.gen_b_dir,

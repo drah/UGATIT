@@ -86,8 +86,6 @@ if __name__ == '__main__':
   parser.add_argument('--save_dir', default='ugatit',
       help='the directory for saving training logs and checkpoints')
 
-  parser.add_argument('-init_step', dest='start_step', type=int, default=0,
-      help='the number from which training step starts')
   parser.add_argument('--base_ch', dest='base_ch', type=int, default=64)
   parser.add_argument('--gan_weight', dest='gan_weight', type=float, default=1)
   parser.add_argument('--rec_weight', dest='rec_weight', type=float, default=10)

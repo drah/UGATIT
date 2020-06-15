@@ -17,7 +17,27 @@
 -- UGATIT
    |- main.py
    |- model/
-   |- reader/
+      |- test
+         |- test_critic.py
+         |- test_generator.py
+         |- test_model.py
+      |- __init__.py
+      |- factory.py
+      |- model.py
+      |- critic.py
+      |- generator.py
+      |- modules.py
+      |- helpers.py
+   |- data_pipeline/
+      |- test
+         |- test.py
+      |- __init__.py
+      |- factory.py
+      |- reader.py
+      |- tf_helper.py
+   |- helper
+      |- __init__.py
+      |- directory.py
    |- data
       |- selfie2anime
          |- trainA

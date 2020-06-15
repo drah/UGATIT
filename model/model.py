@@ -198,7 +198,7 @@ class UGATIT:
     if self._saver is None:
       self._saver = tf.train.Saver(max_to_keep=50)
     save_path = os.path.join(self._save_dir, save_name)
-    self._saver_save(self.sess, save_path)
+    self._saver.save(self.sess, save_path)
     print("save %s" % save_path)
 
   def log(self, log_str, log_name='log'):

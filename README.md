@@ -10,9 +10,10 @@
 `$ python3 main.py --phase train`
 
 ### Test the Trained Model
-`$ python3 main.py --phase test`
+`$ python3 main.py --phase test --ckpt <path_to_ckpt>`
 
 ## Directory Structure
+```
 -- UGATIT
    |- main.py
    |- model/
@@ -27,3 +28,4 @@
             |- *.jpg
          |- testB
             |- *.jpg
+```

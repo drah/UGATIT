@@ -195,7 +195,7 @@ def save_images_as_grid(save_path, images):
   ''' images: np.array with dtype uint8 and shape (N, H, W, C)'''
   shape = images.shape
   length = int(sqrt(shape[0]))
-  grid_images = images[:length*length]
+  grid_images = images[:length*length,:,:,::-1]
   grid_images = grid_images.reshape([length, length, shape[1], shape[2], shape[3]])
   grid_images = grid_images.transpose([0, 2, 1, 3, 4])
   grid_images = grid_images.reshape([length * shape[1], length * shape[2], shape[3]])

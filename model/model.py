@@ -51,7 +51,7 @@ class UGATIT:
 
         self.sess.run([self._train_c, self._train_g], feed)
         for i in range(self._log_step):
-          self.sess.run([self._train_c, self._train_g])
+          self.sess.run([self._train_c, self._train_g], feed)
         step += self._log_step
         print("step: %d" % step, end='\r')
         

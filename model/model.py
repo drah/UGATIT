@@ -196,7 +196,7 @@ class UGATIT:
 
   def save(self, save_name='ckpt'):
     if self._saver is None:
-      self._saver = tf.train.Saver(max_to_keep=50)
+      self._saver = tf.train.Saver(max_to_keep=25)
     save_path = os.path.join(self._save_dir, save_name)
     self._saver.save(self.sess, save_path)
     print("save %s" % save_path)
